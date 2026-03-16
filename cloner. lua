@@ -1,0 +1,56 @@
+local ScreenGui = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local NameInput = Instance.new("TextBox")
+local CopyBtn = Instance.new("TextButton")
+local Close = Instance.new("TextButton")
+
+ScreenGui.Parent = game:GetService("CoreGui")
+Main.Parent = ScreenGui
+Main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Main.Position = UDim2.new(0.5, -100, 0.5, -60)
+Main.Size = UDim2.new(0, 200, 0, 120)
+Main.Active = true
+Main.Draggable = true
+
+Title.Parent = Main
+Title.Text = "FULL CLONER V3"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.TextColor3 = Color3.new(1, 1, 1)
+
+NameInput.Parent = Main
+NameInput.PlaceholderText = "Username..."
+NameInput.Position = UDim2.new(0.05, 0, 0.35, 0)
+NameInput.Size = UDim2.new(0.9, 0, 0, 30)
+
+CopyBtn.Parent = Main
+CopyBtn.Text = "نسخ الهوية بالكامل"
+CopyBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+CopyBtn.Size = UDim2.new(0.9, 0, 0, 30)
+CopyBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+CopyBtn.TextColor3 = Color3.new(1, 1, 1)
+
+Close.Parent = Main
+Close.Text = "X"
+Close.Size = UDim2.new(0, 20, 0, 20)
+Close.Position = UDim2.new(1, -20, 0, 0)
+Close.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+CopyBtn.MouseButton1Click:Connect(function()
+    local target = NameInput.Text
+    local player = game.Players.LocalPlayer
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    
+    local s, id = pcall(function() return game.Players:GetUserIdFromNameAsync(target) end)
+    if s and id then
+        local s2, desc = pcall(function() return game.Players:GetHumanoidDescriptionFromUserId(id) end)
+        if s2 and desc then
+            -- هذا السطر السحري ينسخ كل شيء (طول، عرض، شعر، ملابس)
+            hum:ApplyDescription(desc) 
+            print("Successfully Cloned!")
+        end
+    end
+end)
