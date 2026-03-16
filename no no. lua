@@ -1,0 +1,80 @@
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local char = player.Character or player.CharacterAdded:Wait()
+local root = char:WaitForChild("HumanoidRootPart")
+local hum = char:WaitForChild("Humanoid")
+local camera = workspace.CurrentCamera
+
+-- إعداد الواجهة (GUI)
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 160, 0, 130)
+Main.Position = UDim2.new(0.5, -80, 0.2, 0)
+Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Main.Active = true
+Main.Draggable = true
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "FLY V4 (6-AXIS)"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+local SpeedInput = Instance.new("TextBox", Main)
+SpeedInput.PlaceholderText = "السرعة (مثلاً 100)"
+SpeedInput.Text = "70"
+SpeedInput.Size = UDim2.new(0.8, 0, 0, 30)
+SpeedInput.Position = UDim2.new(0.1, 0, 0.3, 0)
+SpeedInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SpeedInput.TextColor3 = Color3.new(1, 1, 1)
+
+local FlyBtn = Instance.new("TextButton", Main)
+FlyBtn.Size = UDim2.new(0.8, 0, 0, 35)
+FlyBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+FlyBtn.Text = "الطيران: إيقاف"
+FlyBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+FlyBtn.TextColor3 = Color3.new(1, 1, 1)
+
+-- برمجة الطيران الحر
+local flying = false
+local bv, bg
+
+FlyBtn.MouseButton1Click:Connect(function()
+    flying = not flying
+    if flying then
+        FlyBtn.Text = "الطيران: يعمل"
+        FlyBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        hum.PlatformStand = true -- لإيقاف حركة الأقدام (الركض)
+        
+        bv = Instance.new("BodyVelocity", root)
+        bg = Instance.new("BodyGyro", root)
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        
+        task.spawn(function()
+            while flying do
+                local speed = tonumber(SpeedInput.Text) or 70
+                local lookVec = camera.CFrame.LookVector -- اتجاه نظرة الكاميرا
+                local moveDir = hum.MoveDirection -- اتجاه الجويستيك
+                
+                -- الحساب الرياضي للطيران الحر (يتبع الكاميرا والجويستيك)
+                if moveDir.Magnitude > 0 then
+                    -- إذا كنت تحرك الجويستيك، سيطير باتجاه الكاميرا
+                    bv.Velocity = camera.CFrame:VectorToWorldSpace(Vector3.new(moveDir.X, 0, moveDir.Z * -1)) * speed
+                else
+                    bv.Velocity = Vector3.new(0, 0.1, 0) -- ثبات مكانه
+                end
+                
+                bg.CFrame = camera.CFrame
+                task.wait()
+            end
+            if bv then bv:Destroy() end
+            if bg then bg:Destroy() end
+            hum.PlatformStand = false
+        end)
+    else
+        FlyBtn.Text = "الطيران: إيقاف"
+        FlyBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    end
+end)
