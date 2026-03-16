@@ -1,0 +1,78 @@
+local ScreenGui = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local FlyBtn = Instance.new("TextButton")
+local SpeedInput = Instance.new("TextBox")
+local Close = Instance.new("TextButton")
+
+ScreenGui.Parent = game:GetService("CoreGui")
+Main.Parent = ScreenGui
+Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Main.Position = UDim2.new(0.5, -75, 0.5, -50)
+Main.Size = UDim2.new(0, 150, 0, 120)
+Main.Active = true
+Main.Draggable = true
+
+Title.Parent = Main
+Title.Text = "FLY HACK"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.TextColor3 = Color3.new(1, 1, 1)
+
+SpeedInput.Parent = Main
+SpeedInput.PlaceholderText = "Speed (Default: 50)"
+SpeedInput.Text = "50"
+SpeedInput.Position = UDim2.new(0.1, 0, 0.35, 0)
+SpeedInput.Size = UDim2.new(0.8, 0, 0, 25)
+
+FlyBtn.Parent = Main
+FlyBtn.Text = "الطيران: إيقاف"
+FlyBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+FlyBtn.Size = UDim2.new(0.8, 0, 0, 30)
+FlyBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+FlyBtn.TextColor3 = Color3.new(1, 1, 1)
+
+Close.Parent = Main
+Close.Text = "X"
+Close.Size = UDim2.new(0, 20, 0, 20)
+Close.Position = UDim2.new(1, -20, 0, 0)
+Close.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+-- نظام الطيران
+local flying = false
+local speed = 50
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+FlyBtn.MouseButton1Click:Connect(function()
+    flying = not flying
+    if flying then
+        FlyBtn.Text = "الطيران: يعمل"
+        FlyBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        local char = player.Character
+        local hum = char:WaitForChild("Humanoid")
+        local root = char:WaitForChild("HumanoidRootPart")
+        
+        local bv = Instance.new("BodyVelocity", root)
+        local bg = Instance.new("BodyGyro", root)
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        
+        speed = tonumber(SpeedInput.Text) or 50
+        
+        task.spawn(function()
+            while flying do
+                bg.CFrame = workspace.CurrentCamera.CFrame
+                bv.Velocity = workspace.CurrentCamera.CFrame.LookVector * speed
+                task.wait()
+            end
+            bv:Destroy()
+            bg:Destroy()
+        end)
+    else
+        FlyBtn.Text = "الطيران: إيقاف"
+        FlyBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    end
+end)
