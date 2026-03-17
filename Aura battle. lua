@@ -1,0 +1,77 @@
+-- Developer: GOJO (Static Slap-Box)
+local Player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+-- [ إعدادات الهيت بوكس ]
+_G.SlapRange = 25 
+_G.BoxTransparency = 0.8 
+
+-- 1. إنشاء الواجهة مع خاصية عدم الاختفاء عند الموت
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GojoPersistentUI"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false -- هذا السطر يمنع السكربت من الوقوف أو الحذف عند الموت
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 200, 0, 80)
+Main.Position = UDim2.new(0.5, -100, 0.05, 0)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+Main.Active = true
+Main.Draggable = true -- تفعيل خاصية السحب والتحريك
+Main.Selectable = true
+
+local UICorner = Instance.new("UICorner", Main)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Thickness = 3
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Text = "GOJO SLAP-BOX\n[ OFF ]"
+Title.Font = Enum.Font.GothamBold
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextSize = 14
+Title.BackgroundTransparency = 1
+
+local hitboxActive = false
+
+-- تأثير الرينبو المستمر
+task.spawn(function()
+    local h = 0
+    while task.wait() do
+        h = h + (1/250)
+        local c = Color3.fromHSV(h%1, 0.8, 1)
+        Stroke.Color = c
+        Title.TextColor3 = c
+    end
+end)
+
+-- 2. محرك الهيت بوكس (يتم إعادة الربط تلقائياً عند الرسبون)
+RunService.RenderStepped:Connect(function()
+    if not hitboxActive then return end
+    
+    for _, enemy in pairs(game.Players:GetPlayers()) do
+        if enemy ~= Player and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = enemy.Character.HumanoidRootPart
+            
+            -- تكبير الهيت بوكس للأعداء
+            hrp.Size = Vector3.new(_G.SlapRange, _G.SlapRange, _G.SlapRange)
+            hrp.Transparency = _G.BoxTransparency
+            hrp.Color = Color3.fromRGB(255, 0, 0)
+            hrp.Material = Enum.Material.Neon
+            hrp.CanCollide = false
+        end
+    end
+end)
+
+-- زر التفعيل (شفاف يغطي الواجهة)
+local btn = Instance.new("TextButton", Main)
+btn.Size = UDim2.new(1, 0, 1, 0)
+btn.BackgroundTransparency = 1
+btn.Text = ""
+
+btn.MouseButton1Click:Connect(function()
+    hitboxActive = not hitboxActive
+    Title.Text = hitboxActive and "GOJO SLAP-BOX\n[ ACTIVE ]" or "GOJO SLAP-BOX\n[ OFF ]"
+end)
