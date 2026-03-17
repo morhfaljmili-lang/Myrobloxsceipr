@@ -1,0 +1,38 @@
+-- سكربت هيدليس (يظهر للناس) مع الحفاظ على الشعر
+local player = game:GetService("Players").LocalPlayer
+
+local function MakeHeadless(character)
+    if not character then return end
+    
+    -- انتظار تحميل الرأس بالكامل
+    local head = character:WaitForChild("Head", 10)
+    if head then
+        task.wait(0.5) -- تأخير بسيط لضمان تحميل الملحقات (الشعر)
+        
+        pcall(function()
+            -- الطريقة الأقوى ليظهر للناس: تصغير "المش" الخاص بالرأس للصفر
+            local mesh = head:FindFirstChildOfClass("SpecialMesh") or head:FindFirstChild("Mesh")
+            if mesh then
+                mesh.Scale = Vector3.new(0, 0, 0) -- هذا ما يجعله يختفي عند الجميع
+            end
+            
+            -- إخفاء الوجه (العيون والفم)
+            if head:FindFirstChild("face") then
+                head.face.Transparency = 1
+            end
+            
+            -- جعل الرأس نفسه شفافاً (احتياط)
+            head.Transparency = 1
+        end)
+    end
+end
+
+-- تفعيل السكربت عند كل رسبون (إعادة إحياء)
+player.CharacterAdded:Connect(MakeHeadless)
+
+-- تفعيل أولي عند تشغيل السكربت
+if player.Character then
+    MakeHeadless(player.Character)
+end
+
+print("Headless (Visible to Others) Active!")
