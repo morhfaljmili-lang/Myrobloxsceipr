@@ -1,0 +1,29 @@
+-- سكريبت الهيد ليس (Headless)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local function applyHeadless(char)
+    local head = char:WaitForChild("Head")
+    if head then
+        -- جعل الرأس شفافة تماماً
+        head.Transparency = 1
+        
+        -- حذف الوجه (العيون والفم)
+        if head:FindFirstChild("face") then
+            head.face:Destroy()
+        end
+        
+        -- إخفاء أي ملحقات مرتبطة بالرأس (اختياري)
+        for _, v in pairs(char:GetChildren()) do
+            if v:IsA("Accessory") and v.Handle:FindFirstChild("HeadWeld") then
+                -- v:Destroy() -- امسح التعليق عن هذا السطر إذا أردت حذف القبعات أيضاً
+            end
+        end
+    end
+end
+
+-- تفعيل السكريبت فوراً وعندما تموت وتعود (Respawn)
+applyHeadless(character)
+player.CharacterAdded:Connect(applyHeadless)
+
+print("تم تفعيل الهيد ليس بنجاح!")
